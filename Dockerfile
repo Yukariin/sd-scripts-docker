@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=ubuntu:22.04
-ARG BASE_RUNTIME_IMAGE=nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+ARG BASE_RUNTIME_IMAGE=nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
 
 FROM ${BASE_IMAGE} AS build-python-stage
 
