@@ -34,8 +34,8 @@ hf-xet==1.1.2
 
 # PyTorch
 --extra-index-url https://download.pytorch.org/whl/cu128
-torch==2.7.0+cu128
-torchvision==0.22.0+cu128
+torch==2.7.0
+torchvision==0.22.0
 xformers==v0.0.30
 dadaptation==3.2
 
