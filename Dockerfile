@@ -87,3 +87,9 @@ RUN <<EOF
 EOF
 ENV PATH="/opt/python_venv/bin:${PATH}"
 
+COPY --chown=root:root ./requirements.txt /python_venv_tmp/
+RUN --mount=type=cache,uid=${VENV_BUILDER_UID},gid=${VENV_BUILDER_GID},target=/home/venvbuilder/.cache/pip <<EOF
+    set -eu
+
+    gosu venvbuilder pip install -r /python_venv_tmp/requirements.txt
+EOF
