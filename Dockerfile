@@ -116,3 +116,71 @@ RUN --mount=type=cache,uid=${VENV_BUILDER_UID},gid=${VENV_BUILDER_GID},target=/h
     gosu venvbuilder pip install --no-deps --editable .
 EOF
 
+FROM ${BASE_RUNTIME_IMAGE} AS runtime-env
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+RUN <<EOF
+    set -eu
+
+    apt-get update
+    apt-get install -y \
+        git \
+        tk \
+        libglib2.0-0
+
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+EOF
+
+COPY --from=build-python-stage --chown=root:root /opt/python /opt/python
+COPY --from=build-python-venv-stage --chown=root:root /opt/python_venv /opt/python_venv
+COPY --from=build-python-venv-stage --chown=root:root /opt/sd-scripts /opt/sd-scripts
+ENV PATH="/opt/python_venv/bin:${PATH}"
+
+WORKDIR /opt/sd-scripts
+
+# huggingface cache dir
+ENV HF_HOME=/huggingface
+
+RUN <<EOF
+    set -eu
+
+    # create huggingface cache dir
+    mkdir -p /huggingface
+
+    # create accelerate cache dir
+    mkdir -p /huggingface/accelerate
+
+    tee /huggingface/accelerate/default_config.yaml <<EOT
+command_file: null
+commands: null
+compute_environment: LOCAL_MACHINE
+deepspeed_config: {}
+distributed_type: 'NO'
+downcast_bf16: 'no'
+dynamo_backend: 'NO'
+fsdp_config: {}
+gpu_ids: all
+machine_rank: 0
+main_process_ip: null
+main_process_port: null
+main_training_function: main
+megatron_lm_config: {}
+mixed_precision: fp16
+num_machines: 1
+num_processes: 1
+rdzv_backend: static
+same_network: true
+tpu_name: null
+tpu_zone: null
+use_cpu: false
+EOT
+
+    # writable by default execution user
+    chown -R "1000:1000" /huggingface
+EOF
+
+USER "1000:1000"
+ENTRYPOINT [ "accelerate", "launch" ]
