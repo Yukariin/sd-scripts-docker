@@ -95,7 +95,7 @@ RUN --mount=type=cache,uid=${VENV_BUILDER_UID},gid=${VENV_BUILDER_GID},target=/h
 EOF
 
 ARG SD_SCRIPTS_URL=https://github.com/67372a/sd-scripts
-ARG SD_SCRIPTS_VERSION=bc43ac2801d06515268cbea78cb06dd8a62684d0
+ARG SD_SCRIPTS_VERSION=043b92643cf823e9abb53bd2c74c2c96a575d0be
 RUN <<EOF
     set -eu
 
